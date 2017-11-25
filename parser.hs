@@ -11,8 +11,8 @@ import Data.Char (isAlphaNum, isDigit, isSpace, ord)
 type Name = String
 
 data Lambda = LVar Name
-                      | LApp Lambda Lambda
-                      | LAbs Name Lambda
+            | LApp Lambda Lambda
+            | LAbs Name Lambda
 
 instance Show Lambda where
   show (LVar n) = n
