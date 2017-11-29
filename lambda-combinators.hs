@@ -38,27 +38,28 @@ instance Show LExp where
 
 -- ==================================================
 --
---  Transformer
+--  Translator
 --
 -- ==================================================
 
-transform :: LExp -> LExp
+translate :: LExp -> LExp
 
-transform (LAbs x e@(LVar y)) | x == y = I
+translate (LAbs x e@(LVar y)) | x == y = I
                               | otherwise = K :$: e
 
-transform (LAbs x (e1 :$: e2)) = s (transform abs1) (transform abs2)
-    where abs1 = LAbs x e1
-          abs2 = LAbs x e2
+translate (LAbs x (e1 :$: e2)) = s (tx e1) (tx e2)
+    where tx e = translate (LAbs x e)
           s (K :$: e1) (K :$: e2)   = K :$: (e1 :$: e2)
           s (K :$: e1) I            = e1
           s (K :$: e1) e2           = B :$: e1 :$: e2
           s e1 (K :$: e2)           = C :$: e1 :$: e2
 
-transform (LAbs x l@(LAbs y e)) | x == y    = K :$: (transform l)
-                                | otherwise = transform (LAbs x (transform l))
+translate (LAbs x l@(LAbs y e)) | x == y    = K :$: (translate l)
+                                | otherwise = translate (LAbs x (translate l))
 
-transform (LAbs x e) = K :$: e
+translate (LAbs x e) = K :$: e
+
+translate e = e
 
 -- ==================================================
 --
@@ -128,13 +129,21 @@ tests =
             LAbs "x" (LAbs "y" (LAbs "z" ((LVar "x") :$: (LVar "y") :$: (LVar "z")))),
             "I"
 
+        ),
+        (
+            (LVar "x") :$: (LVar "y"),
+            "xy"
+        ),
+        (
+            LVar "x",
+            "x"
         )
     ]
 
 check :: [(LExp, String)] -> [String]
 check l = map f (filter g l)
-    where f (e, s) = show (transform e) ++ "  !=  " ++ s
-          g (e, s) = show (transform e) /= s
+    where f (e, s) = show (translate e) ++ "  !=  " ++ s
+          g (e, s) = show (translate e) /= s
 
 main = aux (check tests)
     where aux [] = putStrLn "Done"
