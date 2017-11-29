@@ -47,20 +47,6 @@ transform :: LExp -> LExp
 transform (LAbs x e@(LVar y)) | x == y = I
                               | otherwise = K :$: e
 
--- ???
-transform (LAbs x I) = K :$: I
-transform (LAbs x K) = K :$: K
-transform (LAbs x S) = K :$: S
-transform (LAbs x B) = K :$: B
-transform (LAbs x C) = K :$: C
-
--- ???
-transform (LAbs x (I :$: (LVar y))) | x == y = I
-transform (LAbs x (K :$: (LVar y))) | x == y = K
-transform (LAbs x (S :$: (LVar y))) | x == y = S
-transform (LAbs x (B :$: (LVar y))) | x == y = B
-transform (LAbs x (C :$: (LVar y))) | x == y = C
-
 transform (LAbs x (e1 :$: e2)) = s (transform abs1) (transform abs2)
     where s c1 c2 = (S :$: c1) :$: c2
           abs1 = LAbs x e1
@@ -68,6 +54,8 @@ transform (LAbs x (e1 :$: e2)) = s (transform abs1) (transform abs2)
 
 transform (LAbs x l@(LAbs y e)) | x == y    = K :$: (transform l)
                                 | otherwise = transform (LAbs x (transform l))
+
+transform (LAbs x e) = K :$: e
 
 -- ==================================================
 --
@@ -98,7 +86,7 @@ tests =
         ),
         (
             LAbs "x" (LAbs "y" (LVar "x")),
-            "K"
+            "S(KK)I"
         ),
         (
             LAbs "x" (LAbs "y" (LVar "y")),
@@ -110,12 +98,20 @@ tests =
         ),
         -- Other tests
         (
+            -- \y -> f x y
             LAbs "y" ((LVar "f") :$: (LVar "x") :$: (LVar "y")),
             "S(S(Kf)(Kx))I"
         ),
         (
+            -- \x -> plus 1 x
             LAbs "x" ((LVar "plus") :$: (LVar "1") :$: (LVar "x")),
             "S(S(K plus )(K1))I"
+        ),
+        (
+            -- \x -> \y -> x y
+            LAbs "x" (LAbs "y" ((LVar "x") :$: (LVar "y"))),
+            "S(S(KS)(S(KK)I))(KI)"
+
         )
     ]
 
