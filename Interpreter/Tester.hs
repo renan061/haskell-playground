@@ -1,0 +1,3 @@
+import TranslatorTest
+
+main = testTranslator
