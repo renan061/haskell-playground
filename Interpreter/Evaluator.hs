@@ -1,5 +1,6 @@
 module Evaluator (evaluate) where
 
+import Error (evaluatorError)
 import LExp
 import Translator
 
@@ -12,14 +13,12 @@ eval = eval' . spine
           eval' a              = a
           aux (e, tail)        = eval' (spine e ++ tail)
 
-
 spine :: LExp -> [LExp]
 spine (a :$: b) = spine a ++ [b]
 spine a = [a]
 
 evaluate :: LExp -> String
 evaluate lce = foldr (++) "" exps
-    where
-        exps = map (show . check) (eval lce)
-        check v@(LVar _) = v
-        check e = error ("\n\terror: unexpected " ++ show e)
+    where exps = map (show . check) (eval lce)
+          check v@(LVar _) = v
+          check e = evaluatorError e
