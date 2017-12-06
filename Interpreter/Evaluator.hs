@@ -3,27 +3,23 @@ module Evaluator (evaluate) where
 import LExp
 import Translator
 
--- eval :: LExp -> String
--- eval (I :$: a)       = eval a
--- eval (K :$: a :$: b) = eval a
--- eval (S :$: f :$: g :$: a) = eval (f :$: a :$: (g :$: a))
--- eval (B :$: f :$: g :$: a) = eval (f :$: (g :$: a))
--- eval (C :$: f :$: a :$: b) = eval (f :$: b :$: a)
--- eval a = show a
+eval :: LExp -> [LExp]
+eval = eval' . spine
+    where eval' (I:a:tail)     = aux (a, tail)
+          eval' (K:a:_:tail)   = aux (a, tail)
+          eval' (B:f:g:x:tail) = aux (f :$: (g :$: x),  tail)
+          eval' (C:f:g:x:tail) = aux (f :$: x :$: g, tail)
+          eval' a              = a
+          aux (e, tail)        = eval' (spine e ++ tail)
 
-eval :: [LExp] -> String
-eval (I:a)     = eval a
-eval (K:a:b)   = eval [a]
-eval (S:f:g:a) = eval (f : a ++ (g:a))
-eval (B:f:g:a) = eval (f : g : a)
-eval (C:f:a:b) = eval (f : b : a)
-eval a         = show a
-
--- eval (S :$: _) = error "S should not be a valid combinator"
 
 spine :: LExp -> [LExp]
 spine (a :$: b) = spine a ++ [b]
 spine a = [a]
 
 evaluate :: LExp -> String
-evaluate e = eval (spine (translate e))
+evaluate lce = foldr (++) "" exps
+    where
+        exps = map (show . check) (eval lce)
+        check v@(LVar _) = v
+        check e = error ("\n\terror: unexpected " ++ show e)

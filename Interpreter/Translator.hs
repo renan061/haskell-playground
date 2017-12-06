@@ -4,15 +4,17 @@ import LExp
 
 translate :: LExp -> LExp
 
-translate (LAbs x v@(LVar y)) | x == y = I
+translate (a :$: b) = translate a :$: (translate b)
+
+translate (LAbs x v@(LVar y)) | x == y    = I
                               | otherwise = K :$: v
 
-translate (LAbs x (e1 :$: e2)) = s (tx e1) (tx e2)
+translate (LAbs x (a :$: b)) = s (tx a) (tx b)
     where tx e = translate (LAbs x e)
-          s (K :$: e1) (K :$: e2)   = K :$: (e1 :$: e2)
-          s (K :$: e1) I            = e1
-          s (K :$: e1) e2           = B :$: e1 :$: e2
-          s e1 (K :$: e2)           = C :$: e1 :$: e2
+          s (K :$: a) (K :$: b)   = K :$: (a :$: b)
+          s (K :$: a) I           = a
+          s (K :$: a) b           = B :$: a :$: b
+          s a (K :$: b)           = C :$: a :$: b
 
 translate (LAbs x l@(LAbs y e)) | x == y    = K :$: (translate l)
                                 | otherwise = translate (LAbs x (translate l))
