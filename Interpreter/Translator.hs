@@ -15,6 +15,7 @@ translate (LAbs x (a :$: b)) = s (tx a) (tx b)
           s (K :$: a) I           = a
           s (K :$: a) b           = B :$: a :$: b
           s a (K :$: b)           = C :$: a :$: b
+          s a b                   = S :$: a :$: b
 
 translate (LAbs x l@(LAbs y e)) | x == y    = K :$: (translate l)
                                 | otherwise = translate (LAbs x (translate l))

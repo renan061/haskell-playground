@@ -5,6 +5,7 @@ data LExp = LVar String
           | LAbs String LExp
           | I
           | K
+          | S
           | B
           | C
 
@@ -15,5 +16,6 @@ instance Show LExp where
     show (LAbs n l)  = "(\\" ++ n ++ " -> " ++ (show l) ++ ")"
     show I = "I"
     show K = "K"
+    show S = "S"
     show B = "B"
     show C = "C"

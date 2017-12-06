@@ -1,0 +1,36 @@
+(\x -> x x) a
+aa
+
+(\x -> \y -> y x) a b
+ba
+
+(\x -> x) a
+a
+
+(\x -> \y -> x y) a b
+ab
+
+(\x -> \y -> y x) z (\x -> x)
+z
+
+(\x -> \y -> y x) (\x -> x) a
+aI
+
+# I
+(\x -> x) x
+x
+
+# K
+(\x -> \y -> x) a b c d
+acd
+
+# S
+(\f -> \g -> \x -> f x (g x)) (\x -> \y -> (y x)) (\x -> x y) a
+aya
+
+(\f -> \x -> f (f (f x))) (\x -> x y z) a
+ayzyzyz
+
+# Y
+(\t -> (\x -> t (x x)) (\x -> t (x x))) (\x -> y)
+y

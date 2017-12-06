@@ -5,12 +5,8 @@
 all: clean
 	@- ghc -o lci Main.hs
 
-run: all
-	@- ./lci
-
 test:
-	@- ghc -o tester Tester.hs
-	@- ./tester
+	@- ghc -o tester Tester.hs && ./tester
 
 clean:
 	@- rm -f *.hi
